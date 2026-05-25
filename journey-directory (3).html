@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JOURNEY Champion Directory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #F7F4EF; }
+    ::-webkit-scrollbar { height: 4px; }
+    ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 4px; }
+    input:focus { outline: none; }
+    a { cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo, useEffect } = React;
+
+    const EXPERTS = [
+      { name: "Jenny Abramson",      title: "Founder and Managing Partner",                              company: "Rethink Impact",                                    leaderType: "Private Equity/VC",  industry: ["Venture Capital"],                                     category: "startups"  },
+      { name: "Linda Addison",      title: "Past Managing Partner",                                     company: "Norton Rose Fulbright U.S.",                         leaderType: "Corporate",           industry: ["Legal"],                                               category: "ai"        },
+      { name: "Peggy Alford",      title: "CFO",                                                       company: "eBay",                                              leaderType: "Corporate",           industry: ["Finance", "Fintech", "Marketplaces"],                   category: "finance"   },
+      { name: "Mary Barra",       title: "Chair and CEO",                                             company: "General Motors",                                    leaderType: "Corporate",           industry: ["Supply Chain", "Transportation"],                       category: "comms"     },
+      { name: "Corie Barry",      title: "CEO",                                                       company: "Best Buy",                                          leaderType: "Corporate",           industry: ["Consumer", "Marketplaces"],                             category: "ai"        },
+      { name: "Elisa Beard",      title: "Former CEO",                                                company: "Teach For America",                                 leaderType: "Nonprofit",           industry: ["Education"],                                           category: "education" },
+      { name: "Roz Brewer",        title: "Former CEO",                                                company: "Walgreens Boots Alliance",                          leaderType: "Corporate",           industry: ["Consumer", "Healthcare", "Pharmaceuticals"],            category: "healthcare"},
+      { name: "Diane Bryant",      title: "Chair & Director",                                          company: "mmTron / Broadcom / Celestial AI / Haemonetics",    leaderType: "Corporate",           industry: ["Technology"],                                          category: "ai"        },
+      { name: "Tory Burch",       title: "Executive Chairman and Chief Creative Officer",             company: "Tory Burch",                                        leaderType: "Corporate",           industry: ["Consumer", "Retail"],                                   category: "education" },
+      { name: "Lisa Caputo",       title: "EVP of Marketing, Communications and Customer Experience",  company: "Travelers",                                         leaderType: "Corporate",           industry: ["Financial Services"],                                   category: "finance"   },
+      { name: "Leanne Caret",     title: "Former EVP and Senior Advisor",                             company: "The Boeing Company",                                leaderType: "Corporate",           industry: ["Defense", "Supply Chain"],                              category: "security"  },
+      { name: "Sukhinder Cassidy",  title: "CEO",                                                       company: "Xero",                                              leaderType: "Corporate",           industry: ["Technology"],                                           category: "ai"        },
+      { name: "Wei Christianson",        title: "Former CEO of China and Co-CEO of Asia Pacific",            company: "Morgan Stanley",                                    leaderType: "Corporate",           industry: ["Financial Services"],                                   category: "finance"   },
+      { name: "Cady Coleman",    title: "Former Astronaut",                                          company: "NASA",                                              leaderType: "Government",          industry: ["Aerospace"],                                            category: "boards"    },
+      { name: "Alicia Davis",     title: "President",                                                 company: "Ford Pro",                                          leaderType: "Corporate",           industry: ["Supply Chain", "Transportation"],                       category: "comms"     },
+      { name: "Gwen Davis",       title: "Deputy Director and COO",                                   company: "Museum of Contemporary Art Chicago",                 leaderType: "Nonprofit",           industry: ["Arts and Culture"],                                    category: "education" },
+      { name: "Donna de Varona",      title: "President",                                                 company: "DAMAR Inc.",                                        leaderType: "Nonprofit",           industry: ["Sports"],                                              category: "sports"    },
+      { name: "Tami Erwin",       title: "Former EVP, Verizon, and CEO, Verizon Business",            company: "Verizon",                                           leaderType: "Corporate",           industry: ["Technology"],                                           category: "ai"        },
+      { name: "Michèle Flournoy",    title: "Co-Founder and Managing Partner",                           company: "WestExec Advisors",                                 leaderType: "Corporate",           industry: ["Defense"],                                             category: "security"  },
+      { name: "Janet Foutty",      title: "Former Chair",                                              company: "Deloitte U.S.",                                     leaderType: "Corporate",           industry: ["Healthcare", "Venture Capital"],                        category: "healthcare"},
+      { name: "Maëlle Gavet",     title: "Former CEO / Board Member",                                 company: "Techstars / Flo Health Inc.",                       leaderType: "Private Equity/VC",  industry: ["Venture Capital"],                                     category: "startups"  },
+      { name: "Margo Georgiadis",      title: "Co-Founder and CEO",                                        company: "Montai Therapeutics",                               leaderType: "Corporate",           industry: ["Healthcare", "Technology"],                             category: "healthcare"},
+      { name: "Kirsten Green",    title: "Founder and Managing Partner",                              company: "Forerunner",                                        leaderType: "Private Equity/VC",  industry: ["Consumer", "Venture Capital"],                          category: "startups"  },
+      { name: "Desiree Gruber",    title: "Founder and CEO",                                           company: "Full Picture",                                      leaderType: "Founder",             industry: ["Media", "Venture Capital"],                             category: "boards"    },
+      { name: "Jessica Herrin",    title: "Founder and CEO",                                           company: "Marklo AI",                                         leaderType: "Founder",             industry: ["AI", "Healthcare", "Retail"],                           category: "ai"        },
+      { name: "Marillyn Hewson",   title: "Former Chairman and CEO",                                   company: "Lockheed Martin",                                   leaderType: "Corporate",           industry: ["Defense"],                                             category: "security"  },
+      { name: "Mellody Hobson",    title: "Co-CEO and President",                                      company: "Ariel Investments",                                 leaderType: "Corporate",           industry: ["Financial Services", "Venture Capital"],                category: "startups"  },
+      { name: "Lori Hogan",      title: "EVP, Chief Strategy and Transformation Officer",            company: "Microsoft",                                         leaderType: "Corporate",           industry: ["Technology"],                                           category: "boards"    },
+      { name: "Lyndsay Howard",    title: "Senior Analyst / Foreign Policy Advisor",                   company: "Bloomberg LP",                                      leaderType: "Corporate",           industry: ["Cybersecurity", "Media"],                               category: "security"  },
+      { name: "Angela Hwang",     title: "CEO-Partner / Chief Executive Officer",                     company: "Flagship Pioneering / Metaphore Biotechnologies",   leaderType: "Corporate",           industry: ["Life Sciences", "Technology"],                          category: "healthcare"},
+      { name: "Jenny Johnson",      title: "President and CEO",                                         company: "Franklin Templeton",                                leaderType: "Corporate",           industry: ["Financial Services"],                                   category: "finance"   },
+      { name: "Andrea Jung",     title: "President and CEO",                                         company: "Grameen America",                                   leaderType: "Nonprofit",           industry: ["Consumer", "Finance", "Retail"],                        category: "finance"   },
+      { name: "Lynn Jurich",       title: "Founder and CEO / Co-Executive Chair",                      company: "FLI MD / Sunrun",                                   leaderType: "Founder",             industry: ["Energy", "Healthcare"],                                category: "climate"   },
+      { name: "Jenny Just",      title: "Co-Founder and Managing Partner / Chairwoman",              company: "Peak6 Investments / Apex Fintech Solutions",        leaderType: "Private Equity/VC",  industry: ["Financial Services", "Technology"],                     category: "startups"  },
+      { name: "Coach Kemper",      title: "CEO",                                                       company: "Institute for Education (IFE)",                     leaderType: "Nonprofit",           industry: ["Education"],                                           category: "education" },
+      { name: "Karen King",      title: "COO and Managing Director",                                 company: "Silver Lake",                                       leaderType: "Private Equity/VC",  industry: ["Fintech", "Private Equity", "Technology"],              category: "startups"  },
+      { name: "Sallie Krawcheck",     title: "Founder and CEO",                                           company: "Ellevest",                                          leaderType: "Founder",             industry: ["Financial Services"],                                   category: "finance"   },
+      { name: "Ellen Kullman",      title: "Chair",                                                     company: "Carbon",                                            leaderType: "Corporate",           industry: ["Climate", "Energy", "Sustainability"],                  category: "climate"   },
+      { name: "Jane Lauder",       title: "Board Member",                                              company: "Estée Lauder and Eventbrite",                       leaderType: "Private Equity/VC",  industry: ["AI", "Consumer", "Retail", "Venture Capital"],          category: "startups"  },
+      { name: "Aileen Lee",     title: "Founder and Managing Partner",                              company: "Cowboy Ventures",                                   leaderType: "Private Equity/VC",  industry: ["Technology", "Venture Capital"],                        category: "startups"  },
+      { name: "Stephanie Linnartz",  title: "Former CEO",                                                company: "Under Armour",                                      leaderType: "Corporate",           industry: ["Consumer", "Retail"],                                   category: "boards"    },
+      { name: "Susan Lyne",      title: "Managing Partner and Co-Founder",                           company: "BBG Ventures",                                      leaderType: "Private Equity/VC",  industry: ["Consumer", "Media", "Venture Capital"],                 category: "startups"  },
+      { name: "Anja Manuel",       title: "Co-Founder and Partner",                                    company: "Rice, Hadley, Gates & Manuel",                      leaderType: "Corporate",           industry: ["Global Security"],                                      category: "security"  },
+      { name: "Marissa Mayer",    title: "CEO and Founder",                                           company: "Dazzle AI",                                         leaderType: "Founder",             industry: ["AI", "Consumer Marketplaces", "Technology"],            category: "ai"        },
+      { name: "Dina McCormick",       title: "President and Vice Chairman",                               company: "Meta",                                              leaderType: "Corporate",           industry: ["Financial Services", "Private Equity"],                 category: "finance"   },
+      { name: "Ashley McEvoy",     title: "CEO and President",                                         company: "Insulet",                                           leaderType: "Corporate",           industry: ["Healthcare", "Life Sciences"],                          category: "healthcare"},
+      { name: "Sherrie Westin",   title: "CEO",                                                       company: "Comic Relief",                                      leaderType: "Nonprofit",           industry: ["Philanthropy"],                                        category: "boards"    },
+      { name: "Hadley Mullin",     title: "Partner and Senior Managing Director",                      company: "TSG Consumer Partners",                             leaderType: "Private Equity/VC",  industry: ["Consumer", "Private Equity", "Technology"],             category: "startups"  },
+      { name: "Indra Nooyi",      title: "Former Chairman and CEO",                                   company: "PepsiCo",                                           leaderType: "Corporate",           industry: ["Consumer", "Food", "Technology"],                       category: "healthcare"},
+      { name: "Courtney O'Donnell",   title: "Global Impact Lead",                                        company: "Anthropic",                                         leaderType: "Corporate",           industry: ["Technology"],                                           category: "security"  },
+      { name: "Sarah O'Hagan",      title: "Chief Content and Member Development Officer",              company: "Peloton",                                           leaderType: "Corporate",           industry: ["Consumer", "Healthcare"],                               category: "healthcare"},
+      { name: "Dawn Ostroff",       title: "Board Member",                                              company: "Mattel, Moloco, and Sweetgreen",                    leaderType: "Corporate",           industry: ["Consumer", "Technology"],                               category: "boards"    },
+      { name: "Asahi Pompey",      title: "Global Head of Corporate Engagement / Chair of Urban Investment Group", company: "Goldman Sachs",                         leaderType: "Corporate",           industry: ["Finance", "Sustainability"],                            category: "finance"   },
+      { name: "Jacqueline Reses",  title: "CEO",                                                       company: "Lead Bank",                                         leaderType: "Founder",             industry: ["Financial Services", "Fintech", "Technology"],          category: "finance"   },
+      { name: "Condoleezza Rice",       title: "Partner",                                                   company: "Gingerbread Capital",                               leaderType: "Private Equity/VC",  industry: ["Venture Capital"],                                     category: "boards"    },
+      { name: "Jana Rich",       title: "Former Founder and CEO",                                    company: "Rich Talent Group",                                 leaderType: "Founder",             industry: ["Consumer", "Marketplaces", "Technology"],               category: "boards"    },
+      { name: "Rachel Romer",     title: "Co-Founder and Executive Chair",                            company: "Guild",                                             leaderType: "Founder",             industry: ["Education", "Technology"],                              category: "education" },
+      { name: "Ginni Rometty",      title: "Former Chairman, President, and CEO",                       company: "IBM",                                               leaderType: "Corporate",           industry: ["AI", "Technology"],                                    category: "ai"        },
+      { name: "Evan Ryan",       title: "Former White House Cabinet Secretary",                      company: "",                                                  leaderType: "Government",          industry: ["Global Security", "Media"],                             category: "security"  },
+      { name: "Megan Smith",      title: "Founder and CEO",                                           company: "shift7",                                            leaderType: "Founder",             industry: ["AI", "Marketplaces", "Technology"],                     category: "ai"        },
+      { name: "Sonia Syngal",      title: "Former CEO",                                                company: "Gap Inc.",                                          leaderType: "Corporate",           industry: ["Consumer", "Retail", "Technology"],                     category: "comms"     },
+      { name: "Chrissy Taylor",    title: "CEO and President",                                         company: "Enterprise Mobility",                               leaderType: "Corporate",           industry: ["Consumer", "Supply Chain", "Transportation"],           category: "comms"     },
+      { name: "Jennifer Tejada",   title: "Chairperson and CEO",                                       company: "PagerDuty",                                         leaderType: "Corporate",           industry: ["Technology"],                                           category: "ai"        },
+      { name: "Theresia Gouw",       title: "Founding Partner",                                          company: "Acrew Capital",                                     leaderType: "Private Equity/VC",  industry: ["Venture Capital"],                                     category: "boards"    },
+      { name: "Shriti Vadera",     title: "Chair",                                                     company: "Prudential PLC",                                    leaderType: "Corporate",           industry: ["Financial Services", "Insurance"],                      category: "finance"   },
+      { name: "Kathi Vidal",      title: "Partner",                                                   company: "Winston & Strawn",                                  leaderType: "Corporate",           industry: ["Legal"],                                               category: "ai"        },
+      { name: "Sherrie Westin",    title: "President and CEO",                                         company: "Sesame Workshop",                                   leaderType: "Nonprofit",           industry: ["Education", "Media"],                                   category: "boards"    },
+      { name: "Meg Whitman",        title: "Former U.S. Ambassador to Kenya",                           company: "",                                                  leaderType: "Government",          industry: ["Consumer", "Retail", "Technology"],                     category: "security"  },
+    ];
+
+    const TABS = [
+      { id: "ai",         label: "AI & Deep Tech" },
+      { id: "comms",      label: "Communications / Media" },
+      { id: "climate",    label: "Climate / Energy" },
+      { id: "education",  label: "Education" },
+      { id: "coaches",    label: "Executive Coaches" },
+      { id: "boards",     label: "Corporate Boards" },
+      { id: "finance",    label: "Finance / Money" },
+      { id: "fortune500", label: "Fortune 500 CEO Roles" },
+      { id: "security",   label: "Global Security / Cyber" },
+      { id: "healthcare", label: "Healthcare" },
+      { id: "startups",   label: "Investing in Startups" },
+      { id: "sports",     label: "Investing in Sports" },
+    ];
+
+    const LEADER_COLORS = {
+      "Corporate":         { bg: "#F1F5F9", color: "#475569" },
+      "Founder":           { bg: "#FFF7ED", color: "#9A3412" },
+      "Private Equity/VC": { bg: "#EEF2FF", color: "#3730A3" },
+      "Nonprofit":         { bg: "#F0FDF4", color: "#166534" },
+      "Government":        { bg: "#FDF4FF", color: "#7E22CE" },
+    };
+
+    const NAVY = "#0C1E3C", NAVY2 = "#142844", GOLD = "#C8A45C";
+    const PALETTES = [
+      { bg: "#1B3A6B", fg: "#B8D4FF" },
+      { bg: "#1E4038", fg: "#9FE1CB" },
+      { bg: "#5C1C14", fg: "#FCA5A5" },
+      { bg: "#3B2869", fg: "#C4B5FD" },
+      { bg: "#193648", fg: "#7DD3FC" },
+      { bg: "#4A2D18", fg: "#FCD6A4" },
+    ];
+    const pal      = n => PALETTES[n.charCodeAt(0) % PALETTES.length];
+    const initials = n => n.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+
+    function ExpertCard({ e }) {
+      const p = pal(e.name);
+      const lc = LEADER_COLORS[e.leaderType] || LEADER_COLORS["Corporate"];
+      const [hov, setHov] = useState(false);
+      return (
+        <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{
+          background: "white", borderRadius: 14,
+          border: `1px solid ${hov ? "#D1D5DB" : "#E5E7EB"}`,
+          padding: 24, display: "flex", flexDirection: "column", gap: 14,
+          transition: "box-shadow 0.2s, border-color 0.2s",
+          boxShadow: hov ? "0 6px 24px rgba(0,0,0,0.08)" : "none",
+        }}>
+          <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+            <div style={{ width: 52, height: 52, borderRadius: "50%", flexShrink: 0, background: p.bg, color: p.fg, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 16, letterSpacing: "0.06em", fontFamily: "Georgia, serif" }}>
+              {initials(e.name)}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, marginBottom: 3 }}>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0F172A", lineHeight: 1.3, fontFamily: "Playfair Display, Georgia, serif" }}>{e.name}</h3>
+                <span style={{ background: "#FEF3C7", color: "#92400E", fontSize: 10.5, fontWeight: 700, padding: "3px 9px", borderRadius: 20, whiteSpace: "nowrap", flexShrink: 0 }}>Champion</span>
+              </div>
+              {e.title   && <p style={{ margin: 0, fontSize: 12.5, color: "#4B5563", lineHeight: 1.4 }}>{e.title}</p>}
+              {e.company && <p style={{ margin: "2px 0 0", fontSize: 13, color: GOLD, fontWeight: 700 }}>{e.company}</p>}
+            </div>
+          </div>
+          {e.industry.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {e.industry.map(tag => (
+                <span key={tag} style={{ background: "#F1F5F9", color: "#475569", fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 20 }}>{tag}</span>
+              ))}
+            </div>
+          )}
+          {e.leaderType && (
+            <span style={{ background: lc.bg, color: lc.color, fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, width: "fit-content" }}>{e.leaderType}</span>
+          )}
+        </div>
+      );
+    }
+
+    function App() {
+      const [activeTab, setActiveTab] = useState("ai");
+      const [search, setSearch] = useState("");
+
+      const experts = useMemo(() => {
+        const list = EXPERTS.filter(e => e.category === activeTab);
+        if (!search.trim()) return list;
+        const q = search.toLowerCase();
+        return list.filter(e =>
+          e.name.toLowerCase().includes(q) ||
+          e.company.toLowerCase().includes(q) ||
+          e.title.toLowerCase().includes(q) ||
+          e.industry.some(x => x.toLowerCase().includes(q))
+        );
+      }, [activeTab, search]);
+
+      const countByTab = useMemo(() => {
+        const c = {};
+        EXPERTS.forEach(e => { c[e.category] = (c[e.category] || 0) + 1; });
+        return c;
+      }, []);
+
+      return (
+        <div style={{ minHeight: "100vh", background: "#F7F4EF" }}>
+          <header style={{ background: NAVY }}>
+            <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 40px", display: "flex", alignItems: "center", height: 58, gap: 14 }}>
+              <a href="https://journeytolead.org" style={{ textDecoration: "none" }}>
+                <span style={{ color: GOLD, fontWeight: 700, fontSize: 17, letterSpacing: "0.14em", fontFamily: "Playfair Display, Georgia, serif" }}>JOURNEY</span>
+              </a>
+              <span style={{ color: "rgba(255,255,255,0.25)", fontSize: 18 }}>|</span>
+              <span style={{ color: "rgba(255,255,255,0.65)", fontSize: 13.5 }}>Champion Directory</span>
+              <div style={{ flex: 1 }} />
+              <a href="https://journeytolead.org" style={{ color: "rgba(255,255,255,0.5)", fontSize: 12.5, textDecoration: "none" }}>Member Portal →</a>
+            </div>
+          </header>
+
+          <section style={{ background: NAVY2, padding: "56px 40px 60px" }}>
+            <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+              <p style={{ margin: "0 0 10px", color: GOLD, fontSize: 12.5, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" }}>A portal to experts inside the JOURNEY community</p>
+              <h1 style={{ color: "white", margin: "0 0 32px", fontFamily: "Playfair Display, Georgia, serif", fontSize: 46, fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.02em" }}>Champion Directory</h1>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 36, maxWidth: 900 }}>
+                {["Want to get smarter on AI?", "Looking to join a Fortune 500 board?", "Considering investments in startups... or sports?"].map(q => (
+                  <div key={q} style={{ background: "rgba(200,164,92,0.1)", border: "1px solid rgba(200,164,92,0.28)", borderRadius: 10, padding: "16px 20px" }}>
+                    <p style={{ margin: 0, color: GOLD, fontSize: 14.5, fontStyle: "italic", lineHeight: 1.55, fontFamily: "Playfair Display, Georgia, serif" }}>{q}</p>
+                  </div>
+                ))}
+              </div>
+              <p style={{ color: "rgba(255,255,255,0.72)", fontSize: 15, maxWidth: 780, margin: 0, lineHeight: 1.8 }}>
+                JOURNEY Champions, Fellows, and Members have expertise across the board. Click on the tabs below to identify who can give you advice and direction to thrive in a world where successful leadership depends on continuous learning.
+              </p>
+            </div>
+          </section>
+
+          <div style={{ background: "white", borderBottom: "1px solid #E5E7EB", position: "sticky", top: 0, zIndex: 20, boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+            <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 40px" }}>
+              <div style={{ padding: "14px 0 10px", borderBottom: "1px solid #F1F5F9" }}>
+                <div style={{ position: "relative", maxWidth: 420 }}>
+                  <svg style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "#9CA3AF", pointerEvents: "none" }} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                  <input type="text" placeholder="Search by name, company, or expertise…" value={search} onChange={e => setSearch(e.target.value)}
+                    style={{ width: "100%", padding: "9px 14px 9px 38px", border: "1.5px solid #E5E7EB", borderRadius: 8, fontSize: 13.5, fontFamily: "system-ui", color: "#111827", background: "#FAFAFA" }}
+                    onFocus={e => { e.target.style.borderColor = NAVY; e.target.style.background = "white"; }}
+                    onBlur={e =>  { e.target.style.borderColor = "#E5E7EB"; e.target.style.background = "#FAFAFA"; }}
+                  />
+                </div>
+              </div>
+              <div style={{ display: "flex", overflowX: "auto", gap: 2, padding: "8px 0", scrollbarWidth: "none" }}>
+                {TABS.map(tab => {
+                  const active = activeTab === tab.id;
+                  const count  = countByTab[tab.id];
+                  return (
+                    <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                      style={{ padding: "7px 15px", border: "none", borderRadius: 7, cursor: "pointer", fontSize: 13, fontWeight: active ? 700 : 400, whiteSpace: "nowrap", background: active ? NAVY : "transparent", color: active ? "white" : "#4B5563", transition: "all 0.15s", flexShrink: 0, display: "flex", alignItems: "center", gap: 6 }}
+                      onMouseEnter={ev => { if (!active) ev.currentTarget.style.background = "#F1F5F9"; }}
+                      onMouseLeave={ev => { if (!active) ev.currentTarget.style.background = "transparent"; }}
+                    >
+                      {tab.label}
+                      {count > 0 && (
+                        <span style={{ fontSize: 11, fontWeight: 600, background: active ? "rgba(255,255,255,0.2)" : "#E5E7EB", color: active ? "white" : "#6B7280", borderRadius: 10, padding: "1px 7px" }}>{count}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <main style={{ maxWidth: 1200, margin: "0 auto", padding: "36px 40px 72px" }}>
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 28 }}>
+              <h2 style={{ margin: 0, fontSize: 26, fontWeight: 700, fontFamily: "Playfair Display, Georgia, serif", color: "#0F172A" }}>
+                {TABS.find(t => t.id === activeTab)?.label}
+              </h2>
+              <span style={{ color: "#9CA3AF", fontSize: 13.5 }}>{experts.length} Champion{experts.length !== 1 ? "s" : ""}</span>
+            </div>
+            {experts.length > 0 ? (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 24 }}>
+                {experts.map((e, i) => <ExpertCard key={`${e.name}-${i}`} e={e} />)}
+              </div>
+            ) : (
+              <div style={{ textAlign: "center", padding: "72px 20px", color: "#9CA3AF" }}>
+                <p style={{ fontSize: 16 }}>{search ? `No Champions match "${search}"` : "No Champions in this category yet"}</p>
+              </div>
+            )}
+          </main>
+
+          <footer style={{ background: NAVY, padding: "36px 40px" }}>
+            <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
+              <div>
+                <p style={{ margin: "0 0 4px", color: GOLD, fontWeight: 700, fontSize: 15, letterSpacing: "0.1em", fontFamily: "Playfair Display, Georgia, serif" }}>JOURNEY</p>
+                <p style={{ margin: 0, color: "rgba(255,255,255,0.4)", fontSize: 12.5 }}>Leadership · Learning · Legacy</p>
+              </div>
+              <p style={{ margin: 0, color: "rgba(255,255,255,0.4)", fontSize: 12.5 }}>
+                © 2025 JOURNEY to Lead · <a href="https://journeytolead.org" style={{ color: GOLD, textDecoration: "none" }}>journeytolead.org</a>
+              </p>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
